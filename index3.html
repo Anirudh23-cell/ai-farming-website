@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Food Safety Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-dark: #1a4a2e;
+    --green-mid: #2d7a4f;
+    --green-light: #4caf75;
+    --green-pale: #e8f5ee;
+    --amber: #f5a623;
+    --amber-light: #fff8e7;
+    --red: #c0392b;
+    --red-light: #fdf0ee;
+    --white: #ffffff;
+    --off-white: #f8faf9;
+    --gray-100: #f0f2f1;
+    --gray-200: #d8ddd9;
+    --gray-500: #6b7c72;
+    --gray-700: #3a4a40;
+    --gray-900: #1c2920;
+    --shadow: 0 4px 20px rgba(26,74,46,0.10);
+    --shadow-lg: 0 8px 40px rgba(26,74,46,0.15);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--off-white); color: var(--gray-900); min-height: 100vh; }
+
+  
+  nav {
+    background: var(--green-dark);
+    color: white;
+    position: sticky; top: 0; z-index: 1000;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+  }
+  .nav-inner {
+    max-width: 1200px; margin: auto;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 24px; height: 64px;
+  }
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px; font-weight: 700; color: white;
+    display: flex; align-items: center; gap: 10px; cursor: pointer;
+  }
+  .nav-logo .leaf { font-size: 22px; }
+  .nav-links { display: flex; gap: 4px; flex-wrap: wrap; }
+  .nav-links button {
+    background: none; border: none; color: rgba(255,255,255,0.82);
+    font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 500;
+    padding: 7px 13px; border-radius: 6px; cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+  .nav-links button:hover, .nav-links button.active {
+    background: rgba(255,255,255,0.15); color: white;
+  }
+  .nav-cta {
+    background: var(--amber) !important; color: var(--gray-900) !important;
+    font-weight: 600 !important;
+  }
+  .nav-cta:hover { background: #e09b1a !important; }
+
+ 
+  .section { display: none; }
+  .section.active { display: block; }
+
+
+  .hero {
+    background: linear-gradient(135deg, var(--green-dark) 0%, #2d7a4f 60%, #1a4a2e 100%);
+    color: white; padding: 72px 24px 80px; text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  .hero-content { position: relative; z-index: 1; max-width: 780px; margin: auto; }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(36px, 5vw, 58px); font-weight: 900;
+    line-height: 1.15; margin-bottom: 20px;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.2);
+  }
+  .hero h1 span { color: var(--amber); }
+  .hero p { font-size: 18px; opacity: 0.9; margin-bottom: 36px; line-height: 1.7; }
+  .hero-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--amber); color: var(--gray-900);
+    border: none; padding: 14px 30px; border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.25); }
+  .btn-outline {
+    background: transparent; color: white;
+    border: 2px solid rgba(255,255,255,0.6); padding: 12px 28px;
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .btn-outline:hover { border-color: white; background: rgba(255,255,255,0.1); }
+
+  .stats-bar {
+    background: white; box-shadow: var(--shadow);
+    max-width: 900px; margin: -28px auto 0; position: relative; z-index: 10;
+    border-radius: var(--radius); padding: 24px 32px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+  }
+  .stat-item { text-align: center; }
+  .stat-num { font-size: 28px; font-weight: 700; color: var(--green-mid); font-family: 'Playfair Display', serif; }
+  .stat-lbl { font-size: 12px; color: var(--gray-500); margin-top: 4px; font-weight: 500; }
+
+  
+  .container { max-width: 1200px; margin: auto; padding: 0 24px; }
+  .section-title {
+    font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 700;
+    color: var(--gray-900); margin-bottom: 8px;
+  }
+  .section-sub { color: var(--gray-500); font-size: 15px; margin-bottom: 32px; }
+  .pad-section { padding: 56px 24px; max-width: 1200px; margin: auto; }
+
+  .quick-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 48px; }
+  .qa-card {
+    background: white; border-radius: var(--radius);
+    padding: 24px 16px; text-align: center; cursor: pointer;
+    border: 2px solid transparent; transition: all 0.2s;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+  .qa-card:hover { border-color: var(--green-light); transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+  .qa-icon { font-size: 34px; margin-bottom: 12px; }
+  .qa-label { font-size: 13px; font-weight: 600; color: var(--gray-700); line-height: 1.4; }
+
+  
+  .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+  .card {
+    background: white; border-radius: var(--radius);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07); overflow: hidden;
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+  .card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+  .card-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--gray-100);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .card-icon {
+    width: 44px; height: 44px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; font-size: 20px;
+    flex-shrink: 0;
+  }
+  .card-icon.green { background: var(--green-pale); }
+  .card-icon.amber { background: var(--amber-light); }
+  .card-icon.red { background: var(--red-light); }
+  .card-title { font-size: 16px; font-weight: 600; color: var(--gray-900); }
+  .card-subtitle { font-size: 12px; color: var(--gray-500); margin-top: 2px; }
+  .card-body { padding: 16px 24px 20px; }
+  .card-body p { font-size: 14px; color: var(--gray-500); line-height: 1.65; margin-bottom: 14px; }
+
+ 
+  .tag {
+    display: inline-block; padding: 3px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 600; margin-right: 6px; margin-bottom: 6px;
+  }
+  .tag-green { background: var(--green-pale); color: var(--green-dark); }
+  .tag-amber { background: var(--amber-light); color: #7a4a00; }
+  .tag-red { background: var(--red-light); color: var(--red); }
+
+  
+  .form-wrap {
+    background: white; border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 32px; max-width: 700px;
+  }
+  .form-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .form-subtitle { color: var(--gray-500); font-size: 14px; margin-bottom: 24px; }
+  .form-group { margin-bottom: 20px; }
+  label { display: block; font-size: 13px; font-weight: 600; color: var(--gray-700); margin-bottom: 7px; }
+  input[type=text], input[type=email], input[type=tel], input[type=date], select, textarea {
+    width: 100%; padding: 11px 14px; border-radius: var(--radius-sm);
+    border: 1.5px solid var(--gray-200); font-family: 'DM Sans', sans-serif; font-size: 14px;
+    color: var(--gray-900); background: var(--off-white); transition: border-color 0.2s;
+    outline: none;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--green-mid); background: white; }
+  textarea { resize: vertical; min-height: 100px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .btn-submit {
+    background: var(--green-mid); color: white; border: none;
+    padding: 13px 32px; border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: background 0.2s, transform 0.15s;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-submit:hover { background: var(--green-dark); transform: translateY(-1px); }
+  .success-msg {
+    display: none; background: var(--green-pale); border: 1.5px solid var(--green-light);
+    color: var(--green-dark); padding: 14px 18px; border-radius: var(--radius-sm);
+    font-size: 14px; font-weight: 500; margin-top: 16px;
+  }
+  .radio-group { display: flex; gap: 16px; flex-wrap: wrap; }
+  .radio-opt { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+  .radio-opt input { width: auto; }
+  .severity-bar { display: flex; gap: 8px; margin-top: 8px; }
+  .sev-btn {
+    flex: 1; padding: 9px 6px; border-radius: 6px; border: 1.5px solid var(--gray-200);
+    font-size: 12px; font-weight: 600; cursor: pointer; text-align: center; transition: all 0.2s;
+    background: white;
+  }
+  .sev-btn.low.sel { background: var(--green-pale); border-color: var(--green-light); color: var(--green-dark); }
+  .sev-btn.med.sel { background: var(--amber-light); border-color: var(--amber); color: #7a4a00; }
+  .sev-btn.high.sel { background: var(--red-light); border-color: var(--red); color: var(--red); }
+
+  /* ========== RESTAURANT GUIDE ========== */
+  .restaurant-filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px; }
+  .filter-btn {
+    padding: 8px 18px; border-radius: 24px; border: 1.5px solid var(--gray-200);
+    background: white; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .filter-btn.active { background: var(--green-mid); color: white; border-color: var(--green-mid); }
+  .restaurant-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+  .rest-card {
+    background: white; border-radius: var(--radius); overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.07); transition: all 0.2s;
+  }
+  .rest-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-3px); }
+  .rest-img {
+    height: 140px; display: flex; align-items: center; justify-content: center;
+    font-size: 48px; font-weight: 900;
+  }
+  .rest-body { padding: 16px 18px 20px; }
+  .rest-name { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+  .rest-cuisine { font-size: 12px; color: var(--gray-500); margin-bottom: 10px; }
+  .rest-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .rest-rating { display: flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 600; color: var(--amber); }
+  .cert-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600;
+  }
+  .cert-badge.certified { background: var(--green-pale); color: var(--green-dark); }
+  .cert-badge.pending { background: var(--amber-light); color: #7a4a00; }
+
+  /* ========== MAP ========== */
+  .map-container {
+    background: white; border-radius: var(--radius); box-shadow: var(--shadow);
+    overflow: hidden; position: relative;
+  }
+  .map-area {
+    height: 480px; background: #e8f4f0;
+    display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+  }
+  .map-bg {
+    width: 100%; height: 100%; position: absolute; inset: 0;
+  }
+  .map-pin {
+    position: absolute; cursor: pointer; transform: translate(-50%, -100%);
+    transition: transform 0.2s;
+  }
+  .map-pin:hover { transform: translate(-50%, -100%) scale(1.25); }
+  .pin-body {
+    width: 36px; height: 36px; border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg); display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+  }
+  .pin-body span { transform: rotate(45deg); font-size: 16px; }
+  .pin-body.green { background: var(--green-mid); }
+  .pin-body.amber { background: var(--amber); }
+  .pin-body.red { background: var(--red); }
+  .map-tooltip {
+    position: absolute; background: white; border-radius: var(--radius-sm);
+    padding: 10px 14px; box-shadow: var(--shadow-lg); font-size: 13px;
+    white-space: nowrap; display: none; z-index: 10; pointer-events: none;
+  }
+  .map-tooltip.show { display: block; }
+  .map-legend {
+    padding: 14px 20px; display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+    border-top: 1px solid var(--gray-100);
+  }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--gray-500); }
+  .legend-dot { width: 14px; height: 14px; border-radius: 50%; }
+
+  /* ========== REPORTS ========== */
+  .reports-tabs { display: flex; gap: 6px; margin-bottom: 28px; flex-wrap: wrap; }
+  .tab-btn {
+    padding: 9px 20px; border-radius: 8px; border: 1.5px solid var(--gray-200);
+    background: white; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .tab-btn.active { background: var(--green-dark); color: white; border-color: var(--green-dark); }
+  .report-panel { display: none; }
+  .report-panel.active { display: block; }
+  .report-table-wrap { overflow-x: auto; border-radius: var(--radius-sm); }
+  .report-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .report-table th {
+    background: var(--gray-900); color: white; padding: 12px 16px;
+    text-align: left; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .report-table td { padding: 12px 16px; border-bottom: 1px solid var(--gray-100); }
+  .report-table tr:last-child td { border-bottom: none; }
+  .report-table tr:hover td { background: var(--green-pale); }
+  .status-pill {
+    padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+  }
+  .status-pill.ok { background: var(--green-pale); color: var(--green-dark); }
+  .status-pill.warn { background: var(--amber-light); color: #7a4a00; }
+  .status-pill.bad { background: var(--red-light); color: var(--red); }
+
+  /* ========== EDUCATION ========== */
+  .edu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+  .edu-card {
+    background: white; border-radius: var(--radius); padding: 24px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.07); border-top: 4px solid var(--green-mid);
+    transition: all 0.2s;
+  }
+  .edu-card:hover { box-shadow: var(--shadow-lg); }
+  .edu-icon { font-size: 32px; margin-bottom: 14px; }
+  .edu-title { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
+  .edu-desc { font-size: 14px; color: var(--gray-500); line-height: 1.65; }
+  .edu-link {
+    display: inline-block; margin-top: 14px; font-size: 13px; font-weight: 600;
+    color: var(--green-mid); text-decoration: none; cursor: pointer;
+  }
+  .edu-link:hover { color: var(--green-dark); }
+  .accordion { margin-top: 32px; }
+  .acc-item { background: white; border-radius: var(--radius-sm); margin-bottom: 10px; overflow: hidden; box-shadow: 0 1px 6px rgba(0,0,0,0.06); }
+  .acc-header {
+    padding: 16px 20px; font-weight: 600; font-size: 15px; cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between;
+    transition: background 0.15s;
+  }
+  .acc-header:hover { background: var(--green-pale); }
+  .acc-body { display: none; padding: 0 20px 18px; font-size: 14px; color: var(--gray-500); line-height: 1.7; }
+  .acc-body.open { display: block; }
+
+  /* ========== LOCAL DELICACIES ========== */
+  .delicacy-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+  .delicacy-card {
+    background: white; border-radius: var(--radius); overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.07); transition: all 0.2s;
+  }
+  .delicacy-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-3px); }
+  .del-img { height: 120px; display: flex; align-items: center; justify-content: center; font-size: 56px; }
+  .del-body { padding: 14px 16px 18px; }
+  .del-name { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+  .del-desc { font-size: 13px; color: var(--gray-500); line-height: 1.55; }
+  .del-tags { margin-top: 10px; }
+
+  /* ========== ALERT BANNER ========== */
+  .alert-banner {
+    background: var(--amber); color: var(--gray-900); padding: 12px 24px;
+    display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 500;
+  }
+  .alert-close { margin-left: auto; cursor: pointer; font-size: 18px; background: none; border: none; color: var(--gray-900); }
+
+  /* ========== FOOTER ========== */
+  footer {
+    background: var(--gray-900); color: rgba(255,255,255,0.75);
+    padding: 48px 24px 24px; margin-top: 60px;
+  }
+  .footer-inner { max-width: 1200px; margin: auto; }
+  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 32px; margin-bottom: 40px; }
+  .footer-brand { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: white; margin-bottom: 12px; }
+  .footer-desc { font-size: 14px; line-height: 1.7; }
+  .footer-col h4 { color: white; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; }
+  .footer-col ul { list-style: none; }
+  .footer-col li { margin-bottom: 8px; }
+  .footer-col a { color: rgba(255,255,255,0.65); font-size: 13.5px; text-decoration: none; cursor: pointer; transition: color 0.15s; }
+  .footer-col a:hover { color: var(--green-light); }
+  .footer-bottom {
+    border-top: 1px solid rgba(255,255,255,0.12); padding-top: 20px;
+    display: flex; align-items: center; justify-content: center; text-align: center;
+    font-size: 13px; color: rgba(255,255,255,0.5);
+  }
+
+  /* ========== UTILITIES ========== */
+  .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .info-box { background: var(--green-pale); border-left: 4px solid var(--green-mid); padding: 14px 18px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-size: 14px; color: var(--green-dark); margin-bottom: 18px; }
+  .warn-box { background: var(--amber-light); border-left: 4px solid var(--amber); padding: 14px 18px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-size: 14px; color: #7a4a00; margin-bottom: 18px; }
+  .page-header { padding: 36px 24px 0; max-width: 1200px; margin: auto; }
+  .breadcrumb { font-size: 13px; color: var(--gray-500); margin-bottom: 14px; }
+  .breadcrumb span { cursor: pointer; } .breadcrumb span:hover { color: var(--green-mid); }
+  .divider { height: 1px; background: var(--gray-100); margin: 32px 0; }
+  @media(max-width:700px) {
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+    .stats-bar { grid-template-columns: 2fr 2fr; }
+    .nav-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ALERT BANNER -->
+<div class="alert-banner" id="alertBanner">
+  <span>⚠️</span>
+  <span><strong>Advisory:</strong> Raw sprout advisory in effect for Hyderabad central market area — exercise caution when consuming raw sprouts until further notice.</span>
+  <button class="alert-close" onclick="document.getElementById('alertBanner').style.display='none'">✕</button>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <div class="nav-logo" onclick="showSection('home')">
+      <span class="leaf">🌿</span> Food Safety Portal
+    </div>
+    <div class="nav-links">
+      <button onclick="showSection('home')" id="nav-home" class="active">Home</button>
+      <button onclick="showSection('restaurants')" id="nav-restaurants">Restaurant Guide</button>
+      <button onclick="showSection('education')" id="nav-education">Education</button>
+      <button onclick="showSection('delicacies')" id="nav-delicacies">Local Delicacies</button>
+      <button onclick="showSection('map')" id="nav-map">Map View</button>
+      <button onclick="showSection('reports')" id="nav-reports">Reports</button>
+      <button onclick="showSection('report-illness')" id="nav-report-illness" class="nav-cta">Report Issue</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ======================================= HOME ======================================= -->
+<div class="section active" id="section-home">
+  <div class="hero">
+    <div class="hero-content">
+      <h1>🌿 Food Safety Portal<br><span>Hyderabad City</span></h1>
+      <p>Your comprehensive guide to food safety, restaurant certifications, local delicacies, and food-related reporting for residents and visitors of Hyderabad.</p>
+      <div class="hero-btns">
+        <button class="btn-primary" onclick="showSection('restaurants')">🍽️ Restaurant Guide</button>
+        <button class="btn-outline" onclick="showSection('education')">📚 Learn Food Safety</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-item">
+      <div class="stat-num">1,284</div>
+      <div class="stat-lbl">Certified Restaurants</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">342</div>
+      <div class="stat-lbl">Inspected Markets</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">98.2%</div>
+      <div class="stat-lbl">Compliance Rate</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">56k+</div>
+      <div class="stat-lbl">Monthly Visitors</div>
+    </div>
+  </div>
+
+  <div class="pad-section">
+    <p class="section-title">Quick Actions</p>
+    <p class="section-sub">Find what you need fast</p>
+    <div class="quick-actions">
+      <div class="qa-card" onclick="showSection('report-illness')">
+        <div class="qa-icon">🤒</div>
+        <div class="qa-label">Report Food Illness</div>
+      </div>
+      <div class="qa-card" onclick="showSection('report-concern')">
+        <div class="qa-icon">⚠️</div>
+        <div class="qa-label">Report Food Safety Concern</div>
+      </div>
+      <div class="qa-card" onclick="showSection('suggestions')">
+        <div class="qa-icon">💡</div>
+        <div class="qa-label">Submit Suggestion</div>
+      </div>
+      <div class="qa-card" onclick="showSection('restaurants')">
+        <div class="qa-icon">🍽️</div>
+        <div class="qa-label">Find Restaurants</div>
+      </div>
+      <div class="qa-card" onclick="showSection('map')">
+        <div class="qa-icon">🗺️</div>
+        <div class="qa-label">Map View</div>
+      </div>
+      <div class="qa-card" onclick="showSection('education')">
+        <div class="qa-icon">📋</div>
+        <div class="qa-label">Certification Guide</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <p class="section-title">Featured Information</p>
+    <p class="section-sub">Stay informed about food safety in Hyderabad</p>
+    <div class="cards-grid">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon green">📜</div>
+          <div>
+            <div class="card-title">Restaurant Certifications</div>
+            <div class="card-subtitle">What to look for</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <p>Learn about FSSAI licenses, municipal health certifications, and how to verify a restaurant's compliance status before dining.</p>
+          <div class="chip-row">
+            <span class="tag tag-green">FSSAI License</span>
+            <span class="tag tag-green">Health Card</span>
+            <span class="tag tag-amber">Annual Inspection</span>
+          </div>
+          <button class="btn-submit" style="font-size:13px;padding:8px 18px;" onclick="showSection('education')">Learn More →</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon amber">🏪</div>
+          <div>
+            <div class="card-title">Market Standards</div>
+            <div class="card-subtitle">Hyderabad local markets</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <p>Understand what standards are maintained at Begum Bazaar, Moazzam Jahi Market, and other popular food markets in the city.</p>
+          <div class="chip-row">
+            <span class="tag tag-amber">Storage Standards</span>
+            <span class="tag tag-green">Hygiene Score</span>
+          </div>
+          <button class="btn-submit" style="font-size:13px;padding:8px 18px;" onclick="showSection('map')">View on Map →</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-icon red">🛑</div>
+          <div>
+            <div class="card-title">Food Handling Guide</div>
+            <div class="card-subtitle">For vendors &amp; consumers</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <p>Safe food handling practices for street vendors, home cooks, and food businesses — tailored for Hyderabad's climate and cuisine.</p>
+          <div class="chip-row">
+            <span class="tag tag-red">Temperature Control</span>
+            <span class="tag tag-green">Hygiene</span>
+          </div>
+          <button class="btn-submit" style="font-size:13px;padding:8px 18px;" onclick="showSection('education')">Read Guide →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================= RESTAURANTS ======================================= -->
+<div class="section" id="section-restaurants">
+  <div class="page-header">
+    <div class="breadcrumb"><span onclick="showSection('home')">Home</span> / Restaurant Guide</div>
+    <p class="section-title">🍽️ Restaurant Guide</p>
+    <p class="section-sub">Certified restaurants and eateries in Hyderabad — all reviewed for food safety compliance</p>
+  </div>
+  <div class="pad-section" style="padding-top:24px;">
+    <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
+      <input type="text" id="restSearch" placeholder="🔍  Search restaurants..." style="max-width:280px;flex:1;" oninput="filterRestaurants()">
+      <select onchange="filterRestaurants()" id="restFilter" style="max-width:200px;">
+        <option value="all">All Cuisines</option>
+        <option value="Hyderabadi">Hyderabadi</option>
+        <option value="South Indian">South Indian</option>
+        <option value="North Indian">North Indian</option>
+        <option value="Chinese">Chinese</option>
+        <option value="Continental">Continental</option>
+      </select>
+    </div>
+    <div class="restaurant-filters">
+      <button class="filter-btn active" onclick="filterByStatus('all',this)">All</button>
+      <button class="filter-btn" onclick="filterByStatus('certified',this)">✅ Certified</button>
+      <button class="filter-btn" onclick="filterByStatus('pending',this)">⏳ Pending Review</button>
+    </div>
+    <div class="restaurant-grid" id="restaurantGrid">
+      <!-- JS rendered -->
+    </div>
+  </div>
+</div>
+
+<!-- ======================================= EDUCATION ======================================= -->
+<div class="section" id="section-education">
+  <div class="page-header">
+    <div class="breadcrumb"><span onclick="showSection('home')">Home</span> / Food Safety Education</div>
+    <p class="section-title">📚 Food Safety Education</p>
+    <p class="section-sub">Understand certifications, standards, and best practices for safe food in Hyderabad</p>
+  </div>
+  <div class="pad-section" style="padding-top:24px;">
+    <div class="info-box">🏛️ All food businesses in Hyderabad must comply with the <strong>Food Safety and Standards Authority of India (FSSAI)</strong> regulations under the Food Safety and Standards Act, 2006.</div>
+    <div class="edu-grid">
+      <div class="edu-card">
+        <div class="edu-icon">📜</div>
+        <div class="edu-title">FSSAI License</div>
+        <div class="edu-desc">Mandatory for all food businesses. Look for the 14-digit FSSAI number displayed at the premises. Verify at fssai.gov.in. License must be renewed annually.</div>
+        <span class="edu-link" onclick="accToggle('acc1')">Read more ↓</span>
+      </div>
+      <div class="edu-card">
+        <div class="edu-icon">🏥</div>
+        <div class="edu-title">Health &amp; Hygiene Certificate</div>
+        <div class="edu-desc">Issued by Greater Hyderabad Municipal Corporation (GHMC). Required for all food handlers. Includes medical fitness certificate for staff.</div>
+        <span class="edu-link" onclick="accToggle('acc2')">Read more ↓</span>
+      </div>
+      <div class="edu-card">
+        <div class="edu-icon">🌡️</div>
+        <div class="edu-title">Temperature Standards</div>
+        <div class="edu-desc">Cold foods below 5°C. Hot foods above 60°C. The "danger zone" (5–60°C) allows rapid bacterial growth. Critical for Hyderabad's hot climate.</div>
+        <span class="edu-link" onclick="accToggle('acc3')">Read more ↓</span>
+      </div>
+      <div class="edu-card">
+        <div class="edu-icon">💧</div>
+        <div class="edu-title">Water Quality Standards</div>
+        <div class="edu-desc">Restaurants must use treated potable water for cooking and cleaning. Regular testing for coliform bacteria is mandatory under GHMC rules.</div>
+        <span class="edu-link" onclick="accToggle('acc4')">Read more ↓</span>
+      </div>
+      <div class="edu-card">
+        <div class="edu-icon">🧤</div>
+        <div class="edu-title">Personal Hygiene</div>
+        <div class="edu-desc">Food handlers must wash hands frequently, wear gloves, hair nets, and clean uniforms. No jewellery while handling food. No eating or smoking in food prep areas.</div>
+        <span class="edu-link" onclick="accToggle('acc5')">Read more ↓</span>
+      </div>
+      <div class="edu-card">
+        <div class="edu-icon">🐛</div>
+        <div class="edu-title">Pest Control</div>
+        <div class="edu-desc">Premises must have documented pest control treatments. Screens on windows, sealed drainage, and proper waste management are required by FSSAI.</div>
+        <span class="edu-link" onclick="accToggle('acc6')">Read more ↓</span>
+      </div>
+    </div>
+
+    <div class="accordion" id="accordionArea">
+      <div class="acc-item">
+        <div class="acc-header" onclick="accToggle('acc1')" id="acc1-header">
+          📜 FSSAI License — Detailed Guide <span>+</span>
+        </div>
+        <div class="acc-body" id="acc1">
+          FSSAI (Food Safety and Standards Authority of India) licenses are mandatory under the FSS Act 2006. There are three types: Registration (turnover ≤₹12 lakhs/year), State License (₹12 lakhs–₹20 crores), and Central License (₹20 crores+). The 14-digit license number must be displayed at every food premise. Consumers can verify any FSSAI license at <strong>foscos.fssai.gov.in</strong>. Always check for expiry date. Non-compliant businesses face penalties up to ₹5 lakhs or imprisonment.
+        </div>
+      </div>
+      <div class="acc-item">
+        <div class="acc-header" onclick="accToggle('acc2')" id="acc2-header">
+          🏥 Health Certificate — What to Know <span>+</span>
+        </div>
+        <div class="acc-body" id="acc2">
+          GHMC (Greater Hyderabad Municipal Corporation) issues annual health certificates to food establishments. Inspectors check: kitchen cleanliness, storage conditions, drainage, ventilation, pest control records, and food handler medical certificates. Restaurants are graded A (excellent), B (good), C (satisfactory), or D (unsatisfactory). Grade A and B certificates are displayed as green stickers. Always look for the grade display near the entrance.
+        </div>
+      </div>
+      <div class="acc-item">
+        <div class="acc-header" onclick="accToggle('acc3')" id="acc3-header">
+          🌡️ Temperature Control in Hyderabad's Climate <span>+</span>
+        </div>
+        <div class="acc-body" id="acc3">
+          Hyderabad's hot climate (average 26–40°C) means extra vigilance is required. Cold chain must never be broken. Dairy, meat, and cooked rice are high-risk foods. Never leave cooked food at room temperature for more than 2 hours (1 hour if ambient temp exceeds 32°C). Biriyani must be served immediately or kept above 60°C. Street food vendors must use insulated containers for hot foods.
+        </div>
+      </div>
+      <div class="acc-item">
+        <div class="acc-header" onclick="accToggle('acc4')" id="acc4-header">
+          💧 Water Safety for Food Use <span>+</span>
+        </div>
+        <div class="acc-body" id="acc4">
+          Only municipal-treated water or RO-treated water should be used in food preparation. Ice used in beverages must be made from potable water. Water storage tanks must be cleaned every 6 months and covered to prevent contamination. Restaurants near construction zones must test water more frequently. Report suspected water contamination to GHMC Helpline: 040-21111111.
+        </div>
+      </div>
+      <div class="acc-item">
+        <div class="acc-header" onclick="accToggle('acc5')" id="acc5-header">
+          🧤 Personal Hygiene Standards <span>+</span>
+        </div>
+        <div class="acc-body" id="acc5">
+          All food handlers must undergo annual medical examination and carry a valid health card. Handwashing for 20 seconds with soap before handling food, after restroom use, after touching face, money, or phone. Cuts and wounds must be covered with brightly colored (visible) waterproof bandages. No smoking within food premises. Long hair must be tied and covered. Nail polish and false nails are prohibited in food service roles.
+        </div>
+      </div>
+      <div class="acc-item">
+        <div class="acc-header" onclick="accToggle('acc6')" id="acc6-header">
+          🐛 Pest Control Requirements <span>+</span>
+        </div>
+        <div class="acc-body" id="acc6">
+          Licensed pest control treatment is required at least quarterly for large food establishments and every 6 months for smaller ones. Records of pest control treatments must be available for inspection. Food must be sealed and removed from areas being treated. Rodent bait stations must not be placed in food storage areas. Report cockroach or rodent sightings in food establishments using our "Report Safety Concern" form.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================= LOCAL DELICACIES ======================================= -->
+<div class="section" id="section-delicacies">
+  <div class="page-header">
+    <div class="breadcrumb"><span onclick="showSection('home')">Home</span> / Local Delicacies</div>
+    <p class="section-title">🍛 Hyderabad's Local Delicacies</p>
+    <p class="section-sub">Discover the authentic flavors and food culture of Hyderabad — with safety tips for each dish</p>
+  </div>
+  <div class="pad-section" style="padding-top:24px;">
+    <div class="info-box">🌶️ Hyderabad is renowned for its rich Nizam culinary heritage. The following dishes are local staples — always consume from certified and hygienically maintained vendors.</div>
+    <div class="delicacy-grid" id="delicacyGrid">
+      <!-- JS rendered -->
+    </div>
+  </div>
+</div>
+
+<!-- ======================================= MAP VIEW ======================================= -->
+<div class="section" id="section-map">
+  <div class="page-header">
+    <div class="breadcrumb"><span onclick="showSection('home')">Home</span> / Map View</div>
+    <p class="section-title">🗺️ Restaurants &amp; Markets Map</p>
+    <p class="section-sub">Interactive map of certified restaurants and food markets in Hyderabad</p>
+  </div>
+  <div class="pad-section" style="padding-top:24px;">
+    <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;">
+      <button class="filter-btn active" onclick="mapFilter('all',this)">All</button>
+      <button class="filter-btn" onclick="mapFilter('restaurant',this)">🍽️ Restaurants</button>
+      <button class="filter-btn" onclick="mapFilter('market',this)">🏪 Markets</button>
+      <button class="filter-btn" onclick="mapFilter('certified',this)">✅ Certified Only</button>
+    </div>
+    <div class="map-container">
+      <div class="map-area" id="mapArea">
+        <svg class="map-bg" viewBox="0 0 900 480" xmlns="http://www.w3.org/2000/svg">
+          <rect width="900" height="480" fill="#d4e8d8"/>
+          <ellipse cx="200" cy="180" rx="80" ry="60" fill="#b8dcc2" opacity="0.8"/>
+          <ellipse cx="700" cy="300" rx="60" ry="45" fill="#b8dcc2" opacity="0.8"/>
+          <line x1="0" y1="240" x2="900" y2="240" stroke="#fff" stroke-width="14" opacity="0.9"/>
+          <line x1="450" y1="0" x2="450" y2="480" stroke="#fff" stroke-width="14" opacity="0.9"/>
+          <line x1="0" y1="120" x2="900" y2="350" stroke="#fff" stroke-width="8" opacity="0.7"/>
+          <line x1="0" y1="380" x2="600" y2="120" stroke="#fff" stroke-width="6" opacity="0.6"/>
+          <line x1="225" y1="0" x2="225" y2="480" stroke="#fff" stroke-width="5" opacity="0.55"/>
+          <line x1="675" y1="0" x2="675" y2="480" stroke="#fff" stroke-width="5" opacity="0.55"/>
+          <line x1="0" y1="150" x2="900" y2="150" stroke="#fff" stroke-width="5" opacity="0.55"/>
+          <line x1="0" y1="360" x2="900" y2="360" stroke="#fff" stroke-width="5" opacity="0.55"/>
+          <rect x="20" y="20" width="140" height="100" rx="6" fill="#c8dfd0" opacity="0.6"/>
+          <rect x="250" y="20" width="160" height="100" rx="6" fill="#c8dfd0" opacity="0.6"/>
+          <rect x="460" y="20" width="180" height="100" rx="6" fill="#c8dfd0" opacity="0.6"/>
+          <rect x="700" y="20" width="170" height="100" rx="6" fill="#c8dfd0" opacity="0.6"/>
+          <rect x="20" y="270" width="160" height="70" rx="6" fill="#c8dfd0" opacity="0.6"/>
+          <rect x="250" y="270" width="150" height="70" rx="6" fill="#c8dfd0" opacity="0.6"/>
+          <rect x="460" y="270" width="170" height="70" rx="6" fill="#c8dfd0" opacity="0.6"/>
+          <rect x="700" y="270" width="160" height="70" rx="6" fill="#c8dfd0" opacity="0.6"/>
+          <rect x="20" y="380" width="160" height="80" rx="6" fill="#c8dfd0" opacity="0.6"/>
+          <rect x="250" y="380" width="150" height="80" rx="6" fill="#c8dfd0" opacity="0.6"/>
+          <rect x="460" y="380" width="170" height="80" rx="6" fill="#c8dfd0" opacity="0.6"/>
+          <rect x="700" y="380" width="160" height="80" rx="6" fill="#c8dfd0" opacity="0.6"/>
+          <ellipse cx="450" cy="420" rx="120" ry="45" fill="#8ecfaa" opacity="0.6"/>
+          <text x="450" y="424" text-anchor="middle" fill="#3a7a55" font-size="12" font-family="sans-serif" font-weight="600">Hussain Sagar</text>
+          <text x="90" y="78" text-anchor="middle" fill="#3a5c45" font-size="10" font-family="sans-serif">Charminar</text>
+          <text x="335" y="68" text-anchor="middle" fill="#3a5c45" font-size="10" font-family="sans-serif">Banjara Hills</text>
+          <text x="548" y="68" text-anchor="middle" fill="#3a5c45" font-size="10" font-family="sans-serif">Jubilee Hills</text>
+          <text x="785" y="68" text-anchor="middle" fill="#3a5c45" font-size="10" font-family="sans-serif">Hitech City</text>
+          <text x="200" y="185" text-anchor="middle" fill="#3a7a55" font-size="10" font-family="sans-serif">KBR Park</text>
+          <text x="700" y="305" text-anchor="middle" fill="#3a7a55" font-size="10" font-family="sans-serif">Lumbini Park</text>
+        </svg>
+        <div id="mapPins"></div>
+        <div class="map-tooltip" id="mapTooltip"></div>
+      </div>
+      <div class="map-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--green-mid)"></div> Certified Restaurant</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div> Market / Street Food</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div> Pending Review</div>
+      </div>
+    </div>
+    <div style="margin-top:24px;" id="mapLocationList"></div>
+  </div>
+</div>
+
+<!-- ======================================= REPORTS ======================================= -->
+<div class="section" id="section-reports">
+  <div class="page-header">
+    <div class="breadcrumb"><span onclick="showSection('home')">Home</span> / Reports</div>
+    <p class="section-title">📊 Food Safety Reports</p>
+    <p class="section-sub">Official reports and data for administrators and the public</p>
+  </div>
+  <div class="pad-section" style="padding-top:24px;">
+    <div class="reports-tabs">
+      <!-- FIX: Pass event object explicitly to showReport -->
+      <button class="tab-btn active" onclick="showReport('restaurants', this)">Restaurant Reviews</button>
+      <button class="tab-btn" onclick="showReport('illness', this)">Illness Reports</button>
+      <button class="tab-btn" onclick="showReport('usage', this)">Website Usage</button>
+      <button class="tab-btn" onclick="showReport('suggestions', this)">User Suggestions</button>
+    </div>
+    <div class="report-panel active" id="report-restaurants">
+      <div class="warn-box">📋 This report shows restaurants that have been visited and reviewed for food safety compliance. Last updated: April 2026.</div>
+      <div class="report-table-wrap">
+        <table class="report-table">
+          <thead><tr><th>#</th><th>Restaurant</th><th>Area</th><th>Cuisine</th><th>FSSAI #</th><th>Last Inspected</th><th>Rating</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Paradise Biryani</td><td>Secunderabad</td><td>Hyderabadi</td><td>10020042000834</td><td>Jan 2026</td><td>⭐ 4.8</td><td><span class="status-pill ok">Certified</span></td></tr>
+            <tr><td>2</td><td>Bawarchi Restaurant</td><td>RTC X Roads</td><td>Hyderabadi</td><td>10020042001122</td><td>Feb 2026</td><td>⭐ 4.7</td><td><span class="status-pill ok">Certified</span></td></tr>
+            <tr><td>3</td><td>Café Niloufer</td><td>Nampally</td><td>Bakery/Snacks</td><td>10020042000567</td><td>Mar 2026</td><td>⭐ 4.5</td><td><span class="status-pill ok">Certified</span></td></tr>
+            <tr><td>4</td><td>Hotel Shadab</td><td>High Court Road</td><td>Mughlai</td><td>10020042001988</td><td>Dec 2025</td><td>⭐ 4.6</td><td><span class="status-pill ok">Certified</span></td></tr>
+            <tr><td>5</td><td>Mehfil Restaurant</td><td>Jubilee Hills</td><td>Multi-Cuisine</td><td>10020042002341</td><td>Mar 2026</td><td>⭐ 4.3</td><td><span class="status-pill warn">Renewal Due</span></td></tr>
+            <tr><td>6</td><td>Street Dosa Corner</td><td>Begum Bazaar</td><td>South Indian</td><td>10020042003001</td><td>Jan 2026</td><td>⭐ 4.1</td><td><span class="status-pill warn">Pending</span></td></tr>
+            <tr><td>7</td><td>Fast Bites Kiosk</td><td>Dilsukhnagar</td><td>Fast Food</td><td>—</td><td>Nov 2025</td><td>⭐ 3.2</td><td><span class="status-pill bad">Non-Compliant</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="report-panel" id="report-illness">
+      <div class="warn-box">⚠️ These are reported non-life-threatening food-related illness cases. Medical emergencies should be directed to 108 (ambulance).</div>
+      <div class="report-table-wrap">
+        <table class="report-table">
+          <thead><tr><th>#</th><th>Date</th><th>Area</th><th>Type of Illness</th><th>Suspected Source</th><th>Cases</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Apr 12, 2026</td><td>Begum Bazaar</td><td>Gastroenteritis</td><td>Raw sprouts</td><td>4</td><td><span class="status-pill warn">Under Investigation</span></td></tr>
+            <tr><td>2</td><td>Mar 28, 2026</td><td>Secunderabad</td><td>Food Poisoning</td><td>Street food vendor</td><td>2</td><td><span class="status-pill ok">Resolved</span></td></tr>
+            <tr><td>3</td><td>Mar 15, 2026</td><td>Dilsukhnagar</td><td>Diarrhea</td><td>Contaminated water</td><td>7</td><td><span class="status-pill ok">Resolved</span></td></tr>
+            <tr><td>4</td><td>Feb 20, 2026</td><td>Banjara Hills</td><td>Allergic Reaction</td><td>Restaurant (undeclared nuts)</td><td>1</td><td><span class="status-pill ok">Resolved</span></td></tr>
+            <tr><td>5</td><td>Feb 8, 2026</td><td>Kukatpally</td><td>Food Poisoning</td><td>Meat product</td><td>3</td><td><span class="status-pill ok">Resolved</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="report-panel" id="report-usage">
+      <div class="info-box">📈 Website usage analytics for the past 30 days. Data is anonymized and aggregated.</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:28px;">
+        <div style="background:var(--green-pale);border-radius:var(--radius-sm);padding:20px;text-align:center;">
+          <div style="font-size:28px;font-weight:700;color:var(--green-dark);font-family:'Playfair Display',serif;">56,284</div>
+          <div style="font-size:12px;color:var(--gray-500);margin-top:4px;">Total Visits</div>
+        </div>
+        <div style="background:var(--amber-light);border-radius:var(--radius-sm);padding:20px;text-align:center;">
+          <div style="font-size:28px;font-weight:700;color:#7a4a00;font-family:'Playfair Display',serif;">3m 42s</div>
+          <div style="font-size:12px;color:var(--gray-500);margin-top:4px;">Avg Session</div>
+        </div>
+        <div style="background:var(--green-pale);border-radius:var(--radius-sm);padding:20px;text-align:center;">
+          <div style="font-size:28px;font-weight:700;color:var(--green-dark);font-family:'Playfair Display',serif;">78%</div>
+          <div style="font-size:12px;color:var(--gray-500);margin-top:4px;">Mobile Users</div>
+        </div>
+        <div style="background:var(--amber-light);border-radius:var(--radius-sm);padding:20px;text-align:center;">
+          <div style="font-size:28px;font-weight:700;color:#7a4a00;font-family:'Playfair Display',serif;">312</div>
+          <div style="font-size:12px;color:var(--gray-500);margin-top:4px;">Reports Filed</div>
+        </div>
+      </div>
+      <div class="report-table-wrap">
+        <table class="report-table">
+          <thead><tr><th>Page</th><th>Views</th><th>Unique Visitors</th><th>Avg Time</th><th>Bounce Rate</th></tr></thead>
+          <tbody>
+            <tr><td>Restaurant Guide</td><td>18,420</td><td>12,100</td><td>4m 12s</td><td>28%</td></tr>
+            <tr><td>Home</td><td>14,840</td><td>14,840</td><td>1m 55s</td><td>42%</td></tr>
+            <tr><td>Education</td><td>9,100</td><td>7,200</td><td>5m 30s</td><td>21%</td></tr>
+            <tr><td>Map View</td><td>7,280</td><td>5,600</td><td>3m 45s</td><td>30%</td></tr>
+            <tr><td>Local Delicacies</td><td>4,900</td><td>4,100</td><td>4m 00s</td><td>26%</td></tr>
+            <tr><td>Report Illness</td><td>1,500</td><td>1,480</td><td>6m 12s</td><td>15%</td></tr>
+            <tr><td>Reports</td><td>244</td><td>230</td><td>8m 00s</td><td>10%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="report-panel" id="report-suggestions">
+      <div class="info-box">💡 Suggestions submitted by users. City employees review these monthly to improve food safety services.</div>
+      <div class="report-table-wrap">
+        <table class="report-table">
+          <thead><tr><th>Date</th><th>Category</th><th>Suggestion</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>Apr 22, 2026</td><td>Website</td><td>Add Telugu language support</td><td><span class="status-pill warn">Under Review</span></td></tr>
+            <tr><td>Apr 18, 2026</td><td>Regulation</td><td>More frequent inspections for street food vendors</td><td><span class="status-pill warn">Under Review</span></td></tr>
+            <tr><td>Apr 10, 2026</td><td>Feature</td><td>Add QR code scanner to verify FSSAI license</td><td><span class="status-pill ok">Approved</span></td></tr>
+            <tr><td>Mar 30, 2026</td><td>Content</td><td>Include allergen information for local dishes</td><td><span class="status-pill ok">Implemented</span></td></tr>
+            <tr><td>Mar 14, 2026</td><td>Map</td><td>Show public water testing locations on map</td><td><span class="status-pill warn">Planned</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================= REPORT ILLNESS ======================================= -->
+<div class="section" id="section-report-illness">
+  <div class="page-header">
+    <div class="breadcrumb"><span onclick="showSection('home')">Home</span> / Report Food Illness</div>
+  </div>
+  <div class="pad-section" style="padding-top:24px;">
+    <div class="warn-box" style="max-width:700px;">🚨 <strong>Medical Emergency?</strong> Call <strong>108</strong> (Ambulance) or visit your nearest hospital immediately. This form is for non-life-threatening illness reporting only.</div>
+    <div class="form-wrap">
+      <div class="form-title">🤒 Report Food-Related Illness</div>
+      <div class="form-subtitle">Help us track and prevent food-borne illnesses in Hyderabad. All information is confidential.</div>
+      <!-- FIX: Removed onsubmit from form tag; using onclick on button instead -->
+      <form id="illnessForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Your Name (optional)</label>
+            <input type="text" id="ill_name" placeholder="Full name">
+          </div>
+          <div class="form-group">
+            <label>Contact Number (optional)</label>
+            <input type="text" id="ill_contact" placeholder="For follow-up if needed">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Date of Illness *</label>
+            <input type="date" id="ill_date" required>
+          </div>
+          <div class="form-group">
+            <label>Number of People Affected *</label>
+            <input type="text" id="ill_people" placeholder="e.g., 1, 2–3 people" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Where did you eat? (Restaurant/Market/Area) *</label>
+          <input type="text" id="ill_location" placeholder="Restaurant name, street address, or area" required>
+        </div>
+        <div class="form-group">
+          <label>What did you consume?</label>
+          <input type="text" id="ill_food" placeholder="Dish names, drinks, etc.">
+        </div>
+        <div class="form-group">
+          <label>Symptoms Experienced</label>
+          <div class="radio-group" style="margin-bottom:10px;">
+            <label class="radio-opt"><input type="checkbox" class="ill_symptom" value="Nausea"> Nausea</label>
+            <label class="radio-opt"><input type="checkbox" class="ill_symptom" value="Vomiting"> Vomiting</label>
+            <label class="radio-opt"><input type="checkbox" class="ill_symptom" value="Diarrhea"> Diarrhea</label>
+            <label class="radio-opt"><input type="checkbox" class="ill_symptom" value="Stomach cramps"> Stomach cramps</label>
+            <label class="radio-opt"><input type="checkbox" class="ill_symptom" value="Fever"> Fever</label>
+            <label class="radio-opt"><input type="checkbox" class="ill_symptom" value="Other"> Other</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Severity</label>
+          <div class="severity-bar" id="ill_severity_bar">
+            <div class="sev-btn low sel" onclick="setSeverity(this)">Mild</div>
+            <div class="sev-btn med" onclick="setSeverity(this)">Moderate</div>
+            <div class="sev-btn high" onclick="setSeverity(this)">Severe</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Additional Details</label>
+          <textarea id="ill_details" placeholder="Any other relevant information about the incident..."></textarea>
+        </div>
+        <!-- FIX: Changed type to button and use onclick to call handler directly -->
+        <button type="button" class="btn-submit" onclick="submitIllnessForm()">📤 Submit Report</button>
+        <div class="success-msg" id="illnessSuccess">✅ Your illness report has been submitted. Our team will review it within 24 hours. Thank you for helping keep Hyderabad safe!</div>
+      </form>
+    </div>
+
+    <!-- ILLNESS HISTORY -->
+    <div style="max-width:900px;margin-top:40px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+        <div>
+          <p class="section-title" style="font-size:22px;">📋 Your Submitted Illness Reports</p>
+          <p style="font-size:14px;color:var(--gray-500);">All reports you have submitted in this session</p>
+        </div>
+        <span id="illnessCount" style="background:var(--green-pale);color:var(--green-dark);padding:5px 14px;border-radius:20px;font-size:13px;font-weight:600;">0 Reports</span>
+      </div>
+      <div id="illnessHistoryEmpty" style="background:white;border-radius:var(--radius);padding:32px;text-align:center;color:var(--gray-500);font-size:14px;box-shadow:0 2px 10px rgba(0,0,0,0.06);">
+        No reports submitted yet. Fill in the form above to submit your first report.
+      </div>
+      <div id="illnessHistoryList" style="display:flex;flex-direction:column;gap:14px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================= REPORT CONCERN ======================================= -->
+<div class="section" id="section-report-concern">
+  <div class="page-header">
+    <div class="breadcrumb"><span onclick="showSection('home')">Home</span> / Report Safety Concern</div>
+  </div>
+  <div class="pad-section" style="padding-top:24px;">
+    <div class="form-wrap">
+      <div class="form-title">⚠️ Report Food Safety Concern</div>
+      <div class="form-subtitle">Noticed unhygienic conditions, unlicensed food businesses, or other safety issues? Let us know.</div>
+      <!-- FIX: Removed onsubmit from form tag -->
+      <form id="concernForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Your Name (optional)</label>
+            <input type="text" id="con_name" placeholder="Full name">
+          </div>
+          <div class="form-group">
+            <label>Contact / Email (optional)</label>
+            <input type="text" id="con_contact" placeholder="For updates on your report">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Type of Concern *</label>
+          <select id="con_type" required>
+            <option value="">-- Select type --</option>
+            <option>Unhygienic kitchen / premises</option>
+            <option>No visible FSSAI license</option>
+            <option>Expired food products</option>
+            <option>Pest infestation</option>
+            <option>Water contamination</option>
+            <option>Improper food storage</option>
+            <option>Staff hygiene issues</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Location / Establishment Name *</label>
+          <input type="text" id="con_location" placeholder="Name, address, or area of concern" required>
+        </div>
+        <div class="form-group">
+          <label>Date of Observation *</label>
+          <input type="date" id="con_date" required>
+        </div>
+        <div class="form-group">
+          <label>Description of Concern *</label>
+          <textarea id="con_desc" placeholder="Please describe what you observed in detail..." style="min-height:130px;" required></textarea>
+        </div>
+        <div class="form-group">
+          <label>Priority Level</label>
+          <div class="severity-bar" id="con_severity_bar">
+            <div class="sev-btn low sel" onclick="setSeverity(this)">Low</div>
+            <div class="sev-btn med" onclick="setSeverity(this)">Medium</div>
+            <div class="sev-btn high" onclick="setSeverity(this)">High</div>
+          </div>
+        </div>
+        <!-- FIX: Changed type to button and use onclick -->
+        <button type="button" class="btn-submit" onclick="submitConcernForm()">📤 Submit Concern</button>
+        <div class="success-msg" id="concernSuccess">✅ Your concern has been logged. A food safety inspector will review and take action within 3 working days.</div>
+      </form>
+    </div>
+
+    <!-- CONCERN HISTORY -->
+    <div style="max-width:900px;margin-top:40px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+        <div>
+          <p class="section-title" style="font-size:22px;">📋 Your Submitted Concerns</p>
+          <p style="font-size:14px;color:var(--gray-500);">All concerns you have submitted in this session</p>
+        </div>
+        <span id="concernCount" style="background:var(--amber-light);color:#7a4a00;padding:5px 14px;border-radius:20px;font-size:13px;font-weight:600;">0 Concerns</span>
+      </div>
+      <div id="concernHistoryEmpty" style="background:white;border-radius:var(--radius);padding:32px;text-align:center;color:var(--gray-500);font-size:14px;box-shadow:0 2px 10px rgba(0,0,0,0.06);">
+        No concerns submitted yet. Fill in the form above to submit your first concern.
+      </div>
+      <div id="concernHistoryList" style="display:flex;flex-direction:column;gap:14px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================= SUGGESTIONS ======================================= -->
+<div class="section" id="section-suggestions">
+  <div class="page-header">
+    <div class="breadcrumb"><span onclick="showSection('home')">Home</span> / Submit Suggestion</div>
+  </div>
+  <div class="pad-section" style="padding-top:24px;">
+    <div class="form-wrap">
+      <div class="form-title">💡 Suggest an Improvement</div>
+      <div class="form-subtitle">Your feedback helps us make Hyderabad's food safety services better for everyone.</div>
+      <!-- FIX: Removed onsubmit from form tag -->
+      <form id="suggestionForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Your Name (optional)</label>
+            <input type="text" id="sug_name" placeholder="Full name">
+          </div>
+          <div class="form-group">
+            <label>Email (optional)</label>
+            <input type="text" id="sug_email" placeholder="To receive updates on your suggestion">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Suggestion Category *</label>
+          <select id="sug_category" required>
+            <option value="">-- Select category --</option>
+            <option>Website Features</option>
+            <option>Food Safety Regulations</option>
+            <option>Restaurant Certification Process</option>
+            <option>Market Inspections</option>
+            <option>Public Education</option>
+            <option>Language / Accessibility</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Your Suggestion *</label>
+          <textarea id="sug_text" placeholder="Describe your suggestion in detail..." style="min-height:140px;" required></textarea>
+        </div>
+        <div class="form-group">
+          <label>How would this improvement help?</label>
+          <textarea id="sug_benefit" placeholder="Explain the benefit or problem it solves..."></textarea>
+        </div>
+        <!-- FIX: Changed type to button and use onclick -->
+        <button type="button" class="btn-submit" onclick="submitSuggestionForm()">💬 Submit Suggestion</button>
+        <div class="success-msg" id="suggestionSuccess">✅ Thank you for your suggestion! It has been logged and will be reviewed by our team in the next monthly meeting.</div>
+      </form>
+    </div>
+
+    <!-- SUGGESTION HISTORY -->
+    <div style="max-width:900px;margin-top:40px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+        <div>
+          <p class="section-title" style="font-size:22px;">📋 Your Submitted Suggestions</p>
+          <p style="font-size:14px;color:var(--gray-500);">All suggestions you have submitted in this session</p>
+        </div>
+        <span id="suggestionCount" style="background:var(--green-pale);color:var(--green-dark);padding:5px 14px;border-radius:20px;font-size:13px;font-weight:600;">0 Suggestions</span>
+      </div>
+      <div id="suggestionHistoryEmpty" style="background:white;border-radius:var(--radius);padding:32px;text-align:center;color:var(--gray-500);font-size:14px;box-shadow:0 2px 10px rgba(0,0,0,0.06);">
+        No suggestions submitted yet. Fill in the form above to submit your first suggestion.
+      </div>
+      <div id="suggestionHistoryList" style="display:flex;flex-direction:column;gap:14px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">🌿 Food Safety Portal</div>
+        <p class="footer-desc">Ensuring safe, hygienic, and certified food for all residents and visitors of Hyderabad. A service of the Greater Hyderabad Municipal Corporation.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Services</h4>
+        <ul>
+          <li><a onclick="showSection('restaurants')">Restaurant Guide</a></li>
+          <li><a onclick="showSection('map')">Map View</a></li>
+          <li><a onclick="showSection('education')">Education</a></li>
+          <li><a onclick="showSection('delicacies')">Local Delicacies</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Report</h4>
+        <ul>
+          <li><a onclick="showSection('report-illness')">Food Illness</a></li>
+          <li><a onclick="showSection('report-concern')">Safety Concern</a></li>
+          <li><a onclick="showSection('suggestions')">Suggestion</a></li>
+          <li><a onclick="showSection('reports')">View Reports</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Emergency</h4>
+        <ul>
+          <li><a>Ambulance: 108</a></li>
+          <li><a>GHMC Helpline: 040-21111111</a></li>
+          <li><a>FSSAI: 1800-112-100</a></li>
+          <li><a>Food Safety: 1800-180-1961</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      Copyright &copy; 2026 24951A1255 Navadeep. All Rights Reserved.
+    </div>
+  </div>
+</footer>
+
+<script>
+// ============ DATA ============
+var restaurants = [
+  { name: "Paradise Biryani", cuisine: "Hyderabadi", area: "Secunderabad", rating: 4.8, status: "certified", emoji: "🍛", color: "#e8f5ee", tags: ["Biriyani","Mughlai","Certified"], desc: "Hyderabad's most iconic biryani — celebrated since 1953. FSSAI certified with an A-grade health certificate." },
+  { name: "Bawarchi Restaurant", cuisine: "Hyderabadi", area: "RTC X Roads", rating: 4.7, status: "certified", emoji: "🥘", color: "#fff3cd", tags: ["Biriyani","Kebabs","Certified"], desc: "Famous for dum biryani cooked in traditional handi. Full FSSAI compliance, annual inspections passed." },
+  { name: "Café Niloufer", cuisine: "South Indian", area: "Nampally", rating: 4.5, status: "certified", emoji: "☕", color: "#fce4ec", tags: ["Irani Chai","Osmania Biscuit"], desc: "Iconic Irani café serving authentic chai and Osmania biscuits since 1956. Bakery certified." },
+  { name: "Hotel Shadab", cuisine: "North Indian", area: "High Court Road", rating: 4.6, status: "certified", emoji: "🍖", color: "#e8f5ee", tags: ["Mughlai","Kebabs","Certified"], desc: "Old City landmark serving haleem, kebabs, and nihari. Certified under GHMC Grade A standards." },
+  { name: "Pista House", cuisine: "Hyderabadi", area: "Shah Ali Banda", rating: 4.4, status: "certified", emoji: "🟢", color: "#f3e5f5", tags: ["Haleem","Sweets","Certified"], desc: "World-famous haleem — GI-tagged product. Strict quality controls and FSSAI certification." },
+  { name: "Mehfil Restaurant", cuisine: "Continental", area: "Jubilee Hills", rating: 4.3, status: "pending", emoji: "🍴", color: "#fff8e1", tags: ["Multi-Cuisine","Pending"], desc: "Premium dining with global cuisine. Certification renewal in progress — currently under review." },
+  { name: "Rayalaseema Ruchulu", cuisine: "South Indian", area: "Kukatpally", rating: 4.2, status: "certified", emoji: "🌶️", color: "#fbe9e7", tags: ["Andhra","Spicy","Certified"], desc: "Authentic Andhra-style meals and curries. FSSAI licensed, hygiene score: 92/100." },
+  { name: "Chinese Garden", cuisine: "Chinese", area: "Banjara Hills", rating: 4.1, status: "pending", emoji: "🥡", color: "#e3f2fd", tags: ["Chinese","Pending"], desc: "Popular Chinese cuisine restaurant. Pending annual health certificate renewal for Q2 2026." },
+];
+
+var delicacies = [
+  { name: "Hyderabadi Biryani", emoji: "🍛", bg: "#e8f5ee", desc: "The crown jewel of Hyderabadi cuisine — slow-cooked basmati rice with marinated meat in a sealed pot (dum). GI-tagged product of Hyderabad.", tags: ["GI Tagged", "Must Try"], tip: "🛡️ Ensure it's cooked fresh and served hot above 60°C." },
+  { name: "Haleem", emoji: "🥣", bg: "#fff8e1", desc: "A rich slow-cooked porridge of wheat, barley, and meat — flavored with spices and served with lime. Hyderabadi haleem is GI-tagged.", tags: ["GI Tagged", "Winter Special"], tip: "🛡️ Best consumed freshly made — avoid if stored more than 4 hours at room temperature." },
+  { name: "Irani Chai", emoji: "☕", bg: "#fce4ec", desc: "A thick, milky tea made with mawa (reduced milk) — served in traditional Irani cafés with Osmania biscuits. A morning ritual for many Hyderabadis.", tags: ["Iconic", "Daily Staple"], tip: "🛡️ Ensure milk is fresh. Old City cafés maintain strict standards." },
+  { name: "Osmania Biscuits", emoji: "🍪", bg: "#f3e5f5", desc: "Named after the last Nizam of Hyderabad — a buttery, slightly sweet biscuit traditionally paired with Irani chai.", tags: ["Heritage", "Baked Good"], tip: "🛡️ Check expiry and packaging seal when buying from shops." },
+  { name: "Mirchi Ka Salan", emoji: "🌶️", bg: "#fbe9e7", desc: "A tangy, peanut-and-sesame gravy made with whole green chillies — the traditional side dish served with Hyderabadi biryani.", tags: ["Traditional", "Spicy"], tip: "🛡️ Fresh preparation is key. Avoid reheated versions at roadside stalls." },
+  { name: "Qubani Ka Meetha", emoji: "🍑", bg: "#fff3e0", desc: "A royal dessert made from dried apricots soaked and cooked with sugar — garnished with cream and topped with almonds. A Nizam-era delicacy.", tags: ["Dessert", "Royal Heritage"], tip: "🛡️ Dried fruits must be stored dry. Check for mold before consumption." },
+  { name: "Double Ka Meetha", emoji: "🍞", bg: "#e8f5ee", desc: "Hyderabad's version of bread pudding — fried bread soaked in saffron-flavored milk and sugar, garnished with nuts. A festive favourite.", tags: ["Dessert", "Festive"], tip: "🛡️ Best consumed fresh. Dairy-based desserts must be refrigerated." },
+  { name: "Luqmi", emoji: "🥐", bg: "#e3f2fd", desc: "A deep-fried meat-filled pastry — the Hyderabadi predecessor to the samosa. A popular tea-time snack with a crispy outer crust.", tags: ["Snack", "Street Food"], tip: "🛡️ Ensure oil is fresh and meat is fully cooked through." },
+];
+
+var mapLocations = [
+  { name: "Paradise Biryani", type: "restaurant", status: "certified", left: "12%", top: "18%", area: "Secunderabad" },
+  { name: "Bawarchi Restaurant", type: "restaurant", status: "certified", left: "30%", top: "38%", area: "RTC X Roads" },
+  { name: "Hotel Shadab", type: "restaurant", status: "certified", left: "18%", top: "60%", area: "High Court" },
+  { name: "Pista House", type: "restaurant", status: "certified", left: "22%", top: "72%", area: "Shah Ali Banda" },
+  { name: "Café Niloufer", type: "restaurant", status: "certified", left: "40%", top: "55%", area: "Nampally" },
+  { name: "Begum Bazaar Market", type: "market", status: "certified", left: "35%", top: "68%", area: "Begum Bazaar" },
+  { name: "Moazzam Jahi Market", type: "market", status: "certified", left: "42%", top: "42%", area: "Moazzam Jahi" },
+  { name: "Mehfil Restaurant", type: "restaurant", status: "pending", left: "60%", top: "28%", area: "Jubilee Hills" },
+  { name: "Secunderabad Market", type: "market", status: "certified", left: "72%", top: "20%", area: "Secunderabad" },
+  { name: "Rayalaseema Ruchulu", type: "restaurant", status: "certified", left: "78%", top: "45%", area: "Kukatpally" },
+  { name: "Fast Bites Kiosk", type: "restaurant", status: "pending", left: "55%", top: "75%", area: "Dilsukhnagar" },
+  { name: "L.B. Nagar Market", type: "market", status: "certified", left: "82%", top: "70%", area: "L.B. Nagar" },
+];
+
+// ============ RENDERING ============
+function renderRestaurants(data) {
+  var grid = document.getElementById('restaurantGrid');
+  grid.innerHTML = data.map(function(r) {
+    return '<div class="rest-card" data-status="' + r.status + '" data-cuisine="' + r.cuisine + '">' +
+      '<div class="rest-img" style="background:' + r.color + '">' + r.emoji + '</div>' +
+      '<div class="rest-body">' +
+        '<div class="rest-name">' + r.name + '</div>' +
+        '<div class="rest-cuisine">' + r.cuisine + ' · ' + r.area + '</div>' +
+        '<div class="rest-meta">' +
+          '<span class="rest-rating">★ ' + r.rating + '</span>' +
+          '<span class="cert-badge ' + (r.status === 'certified' ? 'certified' : 'pending') + '">' + (r.status === 'certified' ? '✅ Certified' : '⏳ Pending') + '</span>' +
+        '</div>' +
+        '<p style="font-size:13px;color:#6b7c72;line-height:1.55;margin-bottom:10px;">' + r.desc + '</p>' +
+        '<div>' + r.tags.map(function(t){ return '<span class="tag tag-green">' + t + '</span>'; }).join('') + '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function filterRestaurants() {
+  var search = document.getElementById('restSearch').value.toLowerCase();
+  var cuisine = document.getElementById('restFilter').value;
+  var filtered = restaurants.filter(function(r) {
+    return (cuisine === 'all' || r.cuisine === cuisine) &&
+      (r.name.toLowerCase().indexOf(search) !== -1 || r.area.toLowerCase().indexOf(search) !== -1);
+  });
+  renderRestaurants(filtered);
+}
+
+var activeStatusFilter = 'all';
+function filterByStatus(status, btn) {
+  activeStatusFilter = status;
+  document.querySelectorAll('.restaurant-filters .filter-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  var filtered = status === 'all' ? restaurants : restaurants.filter(function(r){ return r.status === status; });
+  renderRestaurants(filtered);
+}
+
+function renderDelicacies() {
+  var grid = document.getElementById('delicacyGrid');
+  grid.innerHTML = delicacies.map(function(d) {
+    return '<div class="delicacy-card">' +
+      '<div class="del-img" style="background:' + d.bg + '">' + d.emoji + '</div>' +
+      '<div class="del-body">' +
+        '<div class="del-name">' + d.name + '</div>' +
+        '<div class="del-desc">' + d.desc + '</div>' +
+        '<div class="del-tags">' + d.tags.map(function(t){ return '<span class="tag tag-green">' + t + '</span>'; }).join('') + '</div>' +
+        '<div style="margin-top:10px;padding:8px 10px;background:#fff8e1;border-radius:6px;font-size:12px;color:#7a4a00;">' + d.tip + '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function renderMap(filterType) {
+  var pins = document.getElementById('mapPins');
+  var list = document.getElementById('mapLocationList');
+  var tooltip = document.getElementById('mapTooltip');
+  var locs = filterType === 'all' ? mapLocations
+    : filterType === 'certified' ? mapLocations.filter(function(l){ return l.status === 'certified'; })
+    : mapLocations.filter(function(l){ return l.type === filterType; });
+
+  pins.innerHTML = locs.map(function(loc) {
+    var color = loc.status === 'pending' ? 'amber' : loc.type === 'market' ? 'amber' : 'green';
+    var emoji = loc.type === 'market' ? '🏪' : '🍽️';
+    return '<div class="map-pin" style="left:' + loc.left + ';top:' + loc.top + ';" ' +
+      'onmouseenter="showTip(event,\'' + loc.name + '<br><small>' + loc.area + ' · ' + loc.type + ' · ' + loc.status + '</small>\')" ' +
+      'onmouseleave="hideTip()">' +
+      '<div class="pin-body ' + color + '"><span>' + emoji + '</span></div>' +
+    '</div>';
+  }).join('');
+
+  list.innerHTML = '<div class="cards-grid">' + locs.slice(0,6).map(function(loc) {
+    return '<div class="card" style="cursor:default;">' +
+      '<div class="card-body" style="padding:14px 18px;">' +
+        '<div style="font-size:15px;font-weight:600;margin-bottom:4px;">' + (loc.type === 'market' ? '🏪' : '🍽️') + ' ' + loc.name + '</div>' +
+        '<div style="font-size:13px;color:#6b7c72;margin-bottom:8px;">' + loc.area + '</div>' +
+        '<span class="cert-badge ' + (loc.status === 'certified' ? 'certified' : 'pending') + '">' + (loc.status === 'certified' ? '✅ Certified' : '⏳ Pending') + '</span>' +
+        '<span class="tag tag-amber" style="margin-left:6px;">' + loc.type + '</span>' +
+      '</div>' +
+    '</div>';
+  }).join('') + '</div>';
+}
+
+function showTip(e, html) {
+  var t = document.getElementById('mapTooltip');
+  var rect = document.getElementById('mapArea').getBoundingClientRect();
+  t.innerHTML = html;
+  t.className = 'map-tooltip show';
+  t.style.left = (e.clientX - rect.left + 16) + 'px';
+  t.style.top = (e.clientY - rect.top - 20) + 'px';
+}
+function hideTip() { document.getElementById('mapTooltip').className = 'map-tooltip'; }
+
+function mapFilter(type, btn) {
+  document.querySelectorAll('#section-map .filter-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  renderMap(type);
+}
+
+// ============ NAV ============
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
+  document.getElementById('section-' + id).classList.add('active');
+  document.querySelectorAll('.nav-links button').forEach(function(b){ b.classList.remove('active'); });
+  var navBtn = document.getElementById('nav-' + id);
+  if (navBtn) navBtn.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (id === 'map') renderMap('all');
+}
+
+// ============ REPORTS ============
+// FIX: Accept btn parameter instead of relying on global `event`
+function showReport(id, btn) {
+  document.querySelectorAll('.report-panel').forEach(function(p){ p.classList.remove('active'); });
+  document.getElementById('report-' + id).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+}
+
+// ============ FORM HISTORY STORES ============
+var illnessReports = [];
+var concernReports = [];
+var suggestionReports = [];
+
+function genRef(prefix) {
+  return prefix + '-2026-' + Math.floor(1000 + Math.random() * 9000);
+}
+
+function nowStr() {
+  var d = new Date();
+  return d.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) + ' ' +
+    d.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+}
+
+function getVal(id) {
+  var el = document.getElementById(id);
+  return el ? el.value.trim() : '';
+}
+
+function getSelectedSeverity(barId) {
+  var bar = document.getElementById(barId);
+  if (!bar) return 'Mild';
+  var sel = bar.querySelector('.sev-btn.sel');
+  return sel ? sel.textContent.trim() : 'Mild';
+}
+
+// ---- ILLNESS SUBMIT ---- FIX: No event parameter, manual validation
+function submitIllnessForm() {
+  // Manual validation for required fields
+  var date = getVal('ill_date');
+  var people = getVal('ill_people');
+  var location = getVal('ill_location');
+
+  if (!date) { alert('Please fill in the Date of Illness.'); return; }
+  if (!people) { alert('Please fill in the Number of People Affected.'); return; }
+  if (!location) { alert('Please fill in the Location / Restaurant.'); return; }
+
+  var symptoms = [];
+  document.querySelectorAll('.ill_symptom:checked').forEach(function(c){ symptoms.push(c.value); });
+
+  var entry = {
+    ref: genRef('ILL'),
+    time: nowStr(),
+    name: getVal('ill_name') || 'Anonymous',
+    contact: getVal('ill_contact') || '—',
+    date: date,
+    people: people,
+    location: location,
+    food: getVal('ill_food') || 'Not specified',
+    symptoms: symptoms.length ? symptoms.join(', ') : 'Not specified',
+    severity: getSelectedSeverity('ill_severity_bar'),
+    details: getVal('ill_details') || '—',
+    status: 'Under Review'
+  };
+  illnessReports.unshift(entry);
+
+  var msg = document.getElementById('illnessSuccess');
+  msg.innerHTML = '✅ <strong>Report Submitted!</strong> Reference: <strong>' + entry.ref + '</strong> — Our team will review within 24 hours.';
+  msg.style.display = 'block';
+  setTimeout(function(){ msg.style.display = 'none'; }, 8000);
+
+  document.getElementById('illnessForm').reset();
+  var sevBtns = document.getElementById('ill_severity_bar').querySelectorAll('.sev-btn');
+  sevBtns.forEach(function(b, i){ b.classList.toggle('sel', i === 0); });
+
+  renderIllnessHistory();
+  setTimeout(function(){
+    var el = document.getElementById('illnessHistoryList');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 100);
+}
+
+// ---- CONCERN SUBMIT ---- FIX: No event parameter, manual validation
+function submitConcernForm() {
+  var type = getVal('con_type');
+  var location = getVal('con_location');
+  var date = getVal('con_date');
+  var desc = getVal('con_desc');
+
+  if (!type) { alert('Please select a Type of Concern.'); return; }
+  if (!location) { alert('Please fill in the Location / Establishment Name.'); return; }
+  if (!date) { alert('Please fill in the Date of Observation.'); return; }
+  if (!desc) { alert('Please fill in the Description of Concern.'); return; }
+
+  var entry = {
+    ref: genRef('FSC'),
+    time: nowStr(),
+    name: getVal('con_name') || 'Anonymous',
+    contact: getVal('con_contact') || '—',
+    type: type,
+    location: location,
+    date: date,
+    description: desc,
+    priority: getSelectedSeverity('con_severity_bar'),
+    status: 'Logged – Pending Inspection'
+  };
+  concernReports.unshift(entry);
+
+  var msg = document.getElementById('concernSuccess');
+  msg.innerHTML = '✅ <strong>Concern Logged!</strong> Reference: <strong>' + entry.ref + '</strong> — An inspector will act within 3 working days.';
+  msg.style.display = 'block';
+  setTimeout(function(){ msg.style.display = 'none'; }, 8000);
+
+  document.getElementById('concernForm').reset();
+  var sevBtns = document.getElementById('con_severity_bar').querySelectorAll('.sev-btn');
+  sevBtns.forEach(function(b, i){ b.classList.toggle('sel', i === 0); });
+
+  renderConcernHistory();
+  setTimeout(function(){
+    var el = document.getElementById('concernHistoryList');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 100);
+}
+
+// ---- SUGGESTION SUBMIT ---- FIX: No event parameter, manual validation
+function submitSuggestionForm() {
+  var category = getVal('sug_category');
+  var text = getVal('sug_text');
+
+  if (!category) { alert('Please select a Suggestion Category.'); return; }
+  if (!text) { alert('Please fill in Your Suggestion.'); return; }
+
+  var entry = {
+    ref: genRef('SUG'),
+    time: nowStr(),
+    name: getVal('sug_name') || 'Anonymous',
+    email: getVal('sug_email') || '—',
+    category: category,
+    suggestion: text,
+    benefit: getVal('sug_benefit') || '—',
+    status: 'Submitted – Pending Review'
+  };
+  suggestionReports.unshift(entry);
+
+  var msg = document.getElementById('suggestionSuccess');
+  msg.innerHTML = '✅ <strong>Suggestion Received!</strong> Reference: <strong>' + entry.ref + '</strong> — Will be reviewed in our next monthly meeting.';
+  msg.style.display = 'block';
+  setTimeout(function(){ msg.style.display = 'none'; }, 8000);
+
+  document.getElementById('suggestionForm').reset();
+
+  renderSuggestionHistory();
+  setTimeout(function(){
+    var el = document.getElementById('suggestionHistoryList');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 100);
+}
+
+// ---- RENDER HISTORIES ----
+function historyCard(color, icon, fields, ref, time, status, statusBg) {
+  var rows = fields.filter(function(f){ return f[1]; }).map(function(f){
+    return '<div><div style="font-size:11px;font-weight:700;color:var(--gray-500);text-transform:uppercase;margin-bottom:3px;">' + f[0] + '</div>' +
+      '<div style="font-size:13px;color:var(--gray-900);">' + f[1] + '</div></div>';
+  }).join('');
+  return '<div style="background:white;border-radius:var(--radius);box-shadow:0 2px 10px rgba(0,0,0,0.07);overflow:hidden;border-left:4px solid ' + color + ';">' +
+    '<div style="padding:14px 20px 10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;border-bottom:1px solid var(--gray-100);">' +
+      '<div style="display:flex;align-items:center;gap:10px;">' +
+        '<span style="font-size:20px;">' + icon + '</span>' +
+        '<div>' +
+          '<div style="font-size:13px;font-weight:700;color:var(--gray-900);">Ref: ' + ref + '</div>' +
+          '<div style="font-size:12px;color:var(--gray-500);">Submitted: ' + time + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<span style="background:' + statusBg + ';color:var(--gray-700);padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;">' + status + '</span>' +
+    '</div>' +
+    '<div style="padding:14px 20px 16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;">' + rows + '</div>' +
+  '</div>';
+}
+
+function renderIllnessHistory() {
+  var list = document.getElementById('illnessHistoryList');
+  var empty = document.getElementById('illnessHistoryEmpty');
+  var count = document.getElementById('illnessCount');
+  count.textContent = illnessReports.length + (illnessReports.length === 1 ? ' Report' : ' Reports');
+  if (illnessReports.length === 0) { empty.style.display = 'block'; list.innerHTML = ''; return; }
+  empty.style.display = 'none';
+  list.innerHTML = illnessReports.map(function(r) {
+    return historyCard('var(--red)', '🤒',
+      [['Name', r.name], ['Contact', r.contact], ['Date of Illness', r.date],
+       ['People Affected', r.people], ['Location', r.location], ['Food Consumed', r.food],
+       ['Symptoms', r.symptoms], ['Severity', r.severity], ['Details', r.details]],
+      r.ref, r.time, r.status, 'var(--red-light)');
+  }).join('');
+}
+
+function renderConcernHistory() {
+  var list = document.getElementById('concernHistoryList');
+  var empty = document.getElementById('concernHistoryEmpty');
+  var count = document.getElementById('concernCount');
+  count.textContent = concernReports.length + (concernReports.length === 1 ? ' Concern' : ' Concerns');
+  if (concernReports.length === 0) { empty.style.display = 'block'; list.innerHTML = ''; return; }
+  empty.style.display = 'none';
+  list.innerHTML = concernReports.map(function(r) {
+    return historyCard('var(--amber)', '⚠️',
+      [['Name', r.name], ['Contact', r.contact], ['Type', r.type],
+       ['Location', r.location], ['Date Observed', r.date], ['Priority', r.priority],
+       ['Description', r.description]],
+      r.ref, r.time, r.status, 'var(--amber-light)');
+  }).join('');
+}
+
+function renderSuggestionHistory() {
+  var list = document.getElementById('suggestionHistoryList');
+  var empty = document.getElementById('suggestionHistoryEmpty');
+  var count = document.getElementById('suggestionCount');
+  count.textContent = suggestionReports.length + (suggestionReports.length === 1 ? ' Suggestion' : ' Suggestions');
+  if (suggestionReports.length === 0) { empty.style.display = 'block'; list.innerHTML = ''; return; }
+  empty.style.display = 'none';
+  list.innerHTML = suggestionReports.map(function(r) {
+    return historyCard('var(--green-mid)', '💡',
+      [['Name', r.name], ['Email', r.email], ['Category', r.category],
+       ['Suggestion', r.suggestion], ['How it helps', r.benefit]],
+      r.ref, r.time, r.status, 'var(--green-pale)');
+  }).join('');
+}
+
+function setSeverity(el) {
+  var parent = el.parentElement;
+  parent.querySelectorAll('.sev-btn').forEach(function(b){ b.classList.remove('sel'); });
+  el.classList.add('sel');
+}
+
+// ============ ACCORDION ============
+function accToggle(id) {
+  var body = document.getElementById(id);
+  var header = document.getElementById(id + '-header');
+  var isOpen = body.classList.contains('open');
+  document.querySelectorAll('.acc-body').forEach(function(b){ b.classList.remove('open'); });
+  document.querySelectorAll('.acc-header span').forEach(function(s){ s.textContent = '+'; });
+  if (!isOpen) {
+    body.classList.add('open');
+    if (header) header.querySelector('span').textContent = '−';
+  }
+}
+
+// ============ INIT ============
+renderRestaurants(restaurants);
+renderDelicacies();
+renderMap('all');
+</script>
+</body>
+</html>

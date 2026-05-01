@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Farming Assistant - Chat</title>
+    <style>
+        body {
+            margin: 0;
+            background: #121212;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+
+        nav {
+            background: #0b93f6;
+            padding: 10px;
+            text-align: center;
+        }
+
+        nav a {
+            color: white;
+            margin: 0 15px;
+            text-decoration: none;
+            font-size: 18px;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 700px;
+            margin: auto;
+            padding-top: 20px;
+            padding-bottom: 120px;
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+
+        .message {
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin: 12px 0;
+            line-height: 1.5;
+            width: fit-content;
+            max-width: 80%;
+        }
+
+        .user {
+            background: #0b93f6;
+            color: white;
+            margin-left: auto;
+        }
+
+        .bot {
+            background: #2f2f2f;
+            color: white;
+        }
+
+        .input-box {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: #1e1e1e;
+            padding: 12px;
+            display: flex;
+            gap: 10px;
+            box-sizing: border-box;
+        }
+
+        input {
+            flex: 1;
+            padding: 14px;
+            border-radius: 8px;
+            border: none;
+            font-size: 16px;
+        }
+
+        button {
+            background: #0b93f6;
+            border: none;
+            padding: 14px 18px;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .top-bar {
+            padding: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+<nav>
+    <a href="index.html">Home</a>
+    <a href="chat.html">Chat</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+</nav>
+
+<div class="top-bar">
+    <label>Select Language: </label>
+    <select id="languageSelect" style="padding: 5px; border-radius: 5px;">
+        <option value="en-IN">English</option>
+        <option value="te-IN">Telugu</option>
+        <option value="hi-IN">Hindi</option>
+        <option value="ta-IN">Tamil</option>
+    </select>
+</div>
+
+<div class="chat-container" id="chatbox"></div>
+
+<div class="input-box">
+    <input id="user_input" type="text" placeholder="Ask anything about farming...">
+    <button onclick="startVoice()">🎤</button>
+    <button onclick="sendMessage()">Send</button>
+</div>
+
+<script>
+let voiceMode = false;
+
+/* ------------------ FERTILIZER INFO ------------------ */
+const FERTILIZER_INFO = {
+    "paddy": "Basal: 40 kg urea + 25 kg DAP. Tillering: 20 kg urea. Panicle stage: 20 kg urea + 15 kg MOP.",
+    "wheat": "Basal: 40–45 kg DAP. First irrigation: 40 kg urea. Second irrigation: 40 kg urea.",
+    "maize": "Basal 40 kg DAP. At 30 days: 50 kg urea. At 50 days: 20 kg urea.",
+    "cotton": "Basal: 40 kg DAP. Flowering: 40 kg urea. Boll formation: 20 kg MOP.",
+    "groundnut": "Use 100–125 kg SSP + 200 kg gypsum at pegging.",
+    "soybean": "Basal: 40 kg DAP + FYM.",
+    "tomato": "Basal: 2–3 tons FYM + 40 kg DAP. 30 days: 30 kg urea + 10 kg MOP. Flowering: 20 kg urea + 10 kg MOP.",
+    "onion": "Basal: 2 tons FYM + 50 kg DAP. 30 days: 20 kg urea. Bulb: 25 kg MOP.",
+    "brinjal": "Basal: 2–3 tons FYM + 40 kg DAP. 30 days: 25 kg urea.",
+    "cabbage": "Basal: 40 kg DAP. 25 days: 25 kg urea. Heading: 15 kg MOP.",
+    "carrot": "Basal 2 tons FYM + 30 kg DAP. 25 days: 20 kg urea.",
+    "banana": "10–15 tons FYM + NPK 200:100:200 split doses.",
+    "mango": "20–25 kg FYM + 250 g NPK each per plant.",
+    "apple": "40 kg FYM + 400 g NPK each per plant.",
+    "papaya": "5 tons FYM + NPK 100:50:100 per acre.",
+    "grapes": "10–12 tons FYM + 160:80:200 NPK.",
+    "urad": "5 kg Nitrogen + 12 kg Phosphorus per acre."
+};
+
+/* ------------------ WATER INFO ------------------ */
+const WATER_INFO = {
+    "paddy": "1200–1500 mm per season.",
+    "wheat": "4–6 irrigations needed.",
+    "maize": "Critical stages: knee-high, tasseling.",
+    "cotton": "Moderate water, avoid waterlogging.",
+    "groundnut": "Moderate water at flowering.",
+    "soybean": "Moderate water, avoid flooding.",
+    "tomato": "600–800 mm, irrigate every 5–7 days.",
+    "onion": "350–550 mm, irrigate every 7–10 days.",
+    "brinjal": "700–900 mm.",
+    "cabbage": "500–700 mm.",
+    "carrot": "350–450 mm.",
+    "banana": "1200–2200 mm.",
+    "mango": "900–1200 mm.",
+    "apple": "1000–1200 mm.",
+    "papaya": "1000 mm.",
+    "grapes": "700–1200 mm.",
+    "urad": "300–400 mm."
+};
+
+/* ------------------ STATE → CROPS ------------------ */
+const STATE_CROP_DATA = {
+    "telangana": ["Cotton", "Chilli", "Paddy", "Maize", "Groundnut", "Banana", "Mango"],
+    "andhra pradesh": ["Paddy", "Maize", "Banana", "Chilli", "Papaya", "Tomato"],
+    "karnataka": ["Ragi", "Jowar", "Sugarcane", "Tomato", "Onion", "Grapes"],
+    "maharashtra": ["Cotton", "Soybean", "Onion", "Grapes", "Pomegranate"],
+    "tamil nadu": ["Banana", "Paddy", "Sugarcane", "Groundnut"],
+    "gujarat": ["Cotton", "Groundnut", "Cumin", "Banana"],
+    "uttar pradesh": ["Sugarcane", "Potato", "Paddy", "Basmati"],
+    "punjab": ["Wheat", "Rice", "Potato", "Vegetables"],
+    "west bengal": ["Paddy", "Jute", "Banana", "Vegetables"]
+};
+
+/* ------------------ SOIL → CROPS ------------------ */
+const SOIL_CROP_DATA = {
+    "black": ["Cotton", "Soybean", "Millets", "Chilli", "Pulses"],
+    "red": ["Groundnut", "Millets", "Castor", "Ragi", "Chilli"],
+    "alluvial": ["Wheat", "Paddy", "Maize", "Sugarcane", "Potato"],
+    "sandy": ["Groundnut", "Watermelon", "Cucumber", "Bajra"],
+    "clay": ["Paddy", "Wheat", "Sugarcane"],
+    "loamy": ["All crops grow well including vegetables and fruits"]
+};
+
+/* ------------------ PRICES ------------------ */
+const SEED_PRICES = {
+    "tomato": "₹500–1500 per packet",
+    "onion": "₹1500–2500 per kg",
+    "brinjal": "₹800–1500 per 50g",
+    "banana": "₹10–20 per plant",
+    "apple": "₹80–120 per plant",
+    "carrot": "₹1500–2500 per kg",
+    "grapes": "₹15–30 per plant",
+    "urad": "₹120–180 per kg"
+};
+
+const FERT_PRICES = {
+    "urea": "₹270–300 per bag",
+    "dap": "₹1300–1700 per bag",
+    "mop": "₹1500–2000 per bag",
+    "ssp": "₹300–500 per bag"
+};
+
+/* ------------------ HELPER FUNCTIONS ------------------ */
+function addMessage(text, sender) {
+    const chatbox = document.getElementById("chatbox");
+    const msg = document.createElement("div");
+
+    msg.classList.add("message");
+    msg.classList.add(sender);
+    msg.textContent = text;
+
+    chatbox.appendChild(msg);
+
+    setTimeout(() => {
+        chatbox.scrollTop = chatbox.scrollHeight;
+    }, 100);
+
+    if (sender === "bot" && voiceMode) {
+        const speak = new SpeechSynthesisUtterance(text);
+        speak.lang = document.getElementById("languageSelect").value;
+        speechSynthesis.speak(speak);
+    }
+}
+
+function detectCrop(text) {
+    text = text.toLowerCase();
+    const crops = [
+        "paddy","rice","wheat","maize","corn","cotton",
+        "groundnut","soybean","chilli","chili",
+        "tomato","onion","brinjal","cabbage","carrot",
+        "banana","mango","apple","papaya","grapes","urad"
+    ];
+    for (const c of crops) if (text.includes(c)) return c;
+    return null;
+}
+
+function detectState(text) {
+    text = text.toLowerCase();
+    for (const s of Object.keys(STATE_CROP_DATA))
+        if (text.includes(s)) return s;
+    return null;
+}
+
+function detectSoil(text) {
+    const soils = ["black","red","alluvial","sandy","clay","loamy"];
+    text = text.toLowerCase();
+    for (const soil of soils)
+        if (text.includes(soil)) return soil;
+    return null;
+}
+
+/* ------------------ CLASSIFY ------------------ */
+function classifyQuestion(text) {
+    text = text.toLowerCase();
+
+    if (text.includes("fertilizer") || text.includes("urea") || text.includes("dap"))
+        return "fertilizer";
+
+    if (text.includes("water") || text.includes("irrigation"))
+        return "water";
+
+    if (text.includes("price") || text.includes("cost") || text.includes("rate"))
+        return "price";
+
+    if (text.includes("profit"))
+        return "profit";
+
+    if (text.includes("crop") && text.includes("soil"))
+        return "soil_crop";
+
+    if (text.includes("crop") && text.includes("state"))
+        return "state_crop";
+
+    if (text.includes("grow in") || text.includes("crops in"))
+        return "state_crop";
+
+    return "general";
+}
+
+/* ------------------ ANSWER GENERATORS ------------------ */
+function generateAnswer(text) {
+    const type = classifyQuestion(text);
+    const crop = detectCrop(text);
+    const state = detectState(text);
+    const soil = detectSoil(text);
+
+    if (type === "fertilizer")
+        return FERTILIZER_INFO[crop] || "Please specify a valid crop.";
+
+    if (type === "water")
+        return WATER_INFO[crop] || "Please specify a crop for water requirement.";
+
+    if (type === "price") {
+        if (crop && SEED_PRICES[crop]) return SEED_PRICES[crop];
+        for (const f in FERT_PRICES)
+            if (text.includes(f)) return FERT_PRICES[f];
+        return "Please ask like: 'price of tomato seed' or 'cost of urea bag'.";
+    }
+
+    if (type === "profit")
+        return state ? `High profit crops in ${state}: ${STATE_CROP_DATA[state].join(", ")}.` :
+                       "Please mention a state.";
+
+    if (type === "state_crop")
+        return state ? `Crops in ${state}: ${STATE_CROP_DATA[state].join(", ")}` :
+                       "Please mention a valid state.";
+
+    if (type === "soil_crop")
+        return soil ? `Crops suitable for ${soil} soil: ${SOIL_CROP_DATA[soil].join(", ")}` :
+                      "Please mention a soil type.";
+
+    return "I can answer about fertilizer, water, crop suitability, soil-based crops, state-based crops, and prices.";
+}
+
+/* ------------------ Translation ------------------ */
+async function translateText(text, lang) {
+    const code = lang.split("-")[0];
+    const res = await fetch(
+        `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${code}&dt=t&q=${encodeURI(text)}`
+    );
+    const out = await res.json();
+    return out[0][0][0];
+}
+
+/* ------------------ VOICE MODE ------------------ */
+function startVoice() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) return alert("Voice not supported");
+
+    voiceMode = true;
+
+    const rec = new SR();
+    rec.lang = document.getElementById("languageSelect").value;
+
+    addMessage("Listening...", "bot");
+    rec.start();
+
+    rec.onresult = e => {
+        document.querySelector(".bot:last-child").remove();
+        const text = e.results[0][0].transcript;
+        addMessage(text, "user");
+        sendMessage(text);
+    };
+}
+
+/* ------------------ SEND MESSAGE ------------------ */
+async function sendMessage(textFromVoice = null) {
+    let userText = textFromVoice;
+
+    if (!userText) {
+        const input = document.getElementById("user_input");
+        userText = input.value.trim();
+        if (!userText) return;
+        addMessage(userText, "user");
+        input.value = "";
+    }
+
+    addMessage("Typing...", "bot");
+
+    let reply = generateAnswer(userText);
+
+    // Translate
+    const lang = document.getElementById("languageSelect").value;
+    if (lang !== "en-IN") {
+        try {
+            reply = await translateText(reply, lang);
+        } catch { }
+    }
+
+    document.querySelector(".bot:last-child").remove();
+    addMessage(reply, "bot");
+    voiceMode = false;
+}
+
+</script>
+
+</body>
+</html>

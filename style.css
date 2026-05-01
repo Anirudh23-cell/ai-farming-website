@@ -1,0 +1,45 @@
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #f3f3f3;
+}
+
+nav {
+    background: #0b93f6;
+    padding: 12px;
+    text-align: center;
+}
+
+nav a {
+    color: white;
+    margin: 0 15px;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+.container {
+    text-align: center;
+    padding: 50px;
+}
+
+h1 {
+    color: #0b93f6;
+}
+
+.btn {
+    display: inline-block;
+    padding: 12px 18px;
+    background: #0b93f6;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 18px;
+}
+
+.btn:hover {
+    background: #0a6ecd;
+}
